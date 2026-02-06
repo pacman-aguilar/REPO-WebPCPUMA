@@ -1,59 +1,88 @@
-<header>
+# Planificador de eventos formativos — Conéctate con PC PUMA
 
-<!--
-  <<< Author notes: Course header >>>
-  Include a 1280×640 image, course title in sentence case, and a concise description in emphasis.
-  In your repository settings: enable template repository, add your 1280×640 social image, auto delete head branches.
-  Add your open source license, GitHub uses MIT license.
--->
+Aplicación web ligera (HTML/CSS/JS) para gestionar eventos formativos, sus acciones operativas y el seguimiento de avance con vista tipo Gantt.
 
-# GitHub Pages
+## Funcionalidades implementadas
 
-_Create a site or blog from your GitHub repositories with GitHub Pages._
+- CRUD de eventos formativos:
+  - Crear, visualizar, editar y eliminar eventos.
+  - Datos por evento: nombre, descripción, modalidad, responsable, fecha de inicio y término.
+- Gestión de acciones por evento:
+  - Se crean acciones predefinidas al registrar un evento.
+  - Se pueden eliminar acciones predefinidas, agregar acciones personalizadas y actualizar su estado/avance/fechas.
+- Seguimiento de avance:
+  - Porcentaje por acción (0–100%).
+  - Porcentaje global del evento calculado como promedio de avance de sus acciones.
+- Gantt por evento:
+  - Selector de evento.
+  - Visualización de acciones con rango de fechas, estado y porcentaje.
 
-</header>
+## Modelo de datos propuesto
 
-<!--
-  <<< Author notes: Step 2 >>>
-  Start this step by acknowledging the previous step.
-  Define terms and link to docs.github.com.
-  Historic note: previous version checked for empty pull request, changed to the correct theme `minima`.
--->
+La app usa `localStorage` para persistencia local, pero el modelo ya está pensado para escalar a BD relacional o NoSQL.
 
-## Step 2: Configure your site
+### Entidad `EventoFormativo`
 
-_You turned on GitHub Pages! :tada:_
+```ts
+EventoFormativo {
+  id: string;
+  nombre: string;
+  descripcion?: string;
+  modalidad: 'presencial' | 'en_linea' | 'hibrido';
+  responsable?: string;
+  fechaInicio: string; // YYYY-MM-DD
+  fechaFin: string;    // YYYY-MM-DD
+  acciones: AccionEvento[];
+}
+```
 
-We'll work in a branch, `my-pages`, that I created for you to get this site looking great. :sparkle:
+### Entidad `AccionEvento`
 
-Jekyll uses a file titled `_config.yml` to store settings for your site, your theme, and reusable content like your site title and GitHub handle. You can check out the `_config.yml` file on the **Code** tab of your repository.
+```ts
+AccionEvento {
+  id: string;
+  eventoId?: string; // implícito cuando vive anidada en EventoFormativo
+  nombre: string;
+  descripcion?: string;
+  estado: 'no_iniciado' | 'iniciado' | 'en_proceso' | 'completado';
+  porcentajeAvance: number; // 0..100
+  fechaInicio: string;      // YYYY-MM-DD
+  fechaFin: string;         // YYYY-MM-DD
+}
+```
 
-We need to use a blog-ready theme. For this activity, we will use a theme named "minima".
+## Justificación del estado `Completado`
 
-### :keyboard: Activity: Configure your site
+Se incluye `Completado` porque facilita consistencia operativa y analítica:
 
-1. Browse to the `_config.yml` file in the `my-pages` branch.
-1. In the upper right corner, open the file editor.
-1. Add a `theme:` set to **minima** so it shows in the `_config.yml` file as below:
-   ```yml
-   theme: minima
-   ```
-1. (optional) You can modify the other configuration variables such as `title:`, `author:`, and `description:` to further customize your site.
-1. Commit your changes.
-1. (optional) Create a pull request to view all the changes you'll make throughout this course. Click the **Pull Requests** tab, click **New pull request**, set `base: main` and `compare:my-pages`.
-1. Wait about 20 seconds then refresh this page (the one you're following instructions from). [GitHub Actions](https://docs.github.com/en/actions) will automatically update to the next step.
+- Permite distinguir entre “en proceso al 100%” (dato potencialmente incorrecto) y cierre validado.
+- Mejora reportes de cumplimiento por hito.
+- Ayuda en control de calidad cuando se requiere evidencia de cierre administrativo.
 
-<footer>
+## Oportunidades de mejora (si se migra a backend)
 
-<!--
-  <<< Author notes: Footer >>>
-  Add a link to get support, GitHub status page, code of conduct, license link.
--->
+- Catálogos:
+  - `catalogo_estados_accion` para parametrizar estados.
+  - `catalogo_tipo_accion` para reutilizar plantillas de acciones por tipo de evento.
+- Reglas de negocio:
+  - `porcentajeAvance = 100` fuerza sugerencia de `estado = completado`.
+  - Validar que `fechaInicio <= fechaFin` en evento y acción.
+- Auditoría:
+  - `createdAt`, `updatedAt`, `updatedBy` en ambas entidades.
+- Multiusuario:
+  - Roles (`operativo`, `coordinador`, `admin`) y permisos por evento.
 
----
+## Ejecución
 
-Get help: [Post in our discussion board](https://github.com/orgs/skills/discussions/categories/github-pages) &bull; [Review the GitHub status page](https://www.githubstatus.com/)
+Como es una app estática:
 
-&copy; 2023 GitHub &bull; [Code of Conduct](https://www.contributor-covenant.org/version/2/1/code_of_conduct/code_of_conduct.md) &bull; [MIT License](https://gh.io/mit)
+1. Abrir `index.html` directamente en el navegador, o
+2. Servir localmente con cualquier static server.
 
-</footer>
+Ejemplo:
+
+```bash
+python3 -m http.server 8000
+```
+
+Luego entrar a `http://localhost:8000`.
