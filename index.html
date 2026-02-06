@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planificador Conéctate con PC PUMA</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Planificador de eventos formativos</h1>
+    <p>Programa <strong>Conéctate con PC PUMA</strong></p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Nuevo evento</h2>
+      <form id="event-form" class="grid">
+        <label>Nombre <input required name="nombre" /></label>
+        <label>Descripción <textarea name="descripcion"></textarea></label>
+        <label>Modalidad
+          <select name="modalidad">
+            <option value="presencial">Presencial</option>
+            <option value="en_linea">En línea</option>
+            <option value="hibrido">Híbrido</option>
+          </select>
+        </label>
+        <label>Responsable <input name="responsable" /></label>
+        <label>Inicio <input type="date" required name="fechaInicio" /></label>
+        <label>Término <input type="date" required name="fechaFin" /></label>
+        <button type="submit">Guardar evento</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>Eventos</h2>
+      <div id="event-list"></div>
+    </section>
+
+    <section class="card">
+      <h2>Diagrama Gantt (evento seleccionado)</h2>
+      <select id="gantt-event-select"></select>
+      <div id="gantt"></div>
+    </section>
+  </main>
+
+  <template id="event-template">
+    <article class="event-item">
+      <div class="event-head">
+        <h3></h3>
+        <div class="actions">
+          <button data-action="edit">Editar</button>
+          <button data-action="delete">Eliminar</button>
+        </div>
+      </div>
+      <p class="meta"></p>
+      <p class="desc"></p>
+      <p class="global-progress"></p>
+
+      <details>
+        <summary>Acciones del evento</summary>
+        <form class="action-form grid-inline">
+          <input name="nombre" placeholder="Nombre de acción" required />
+          <input name="descripcion" placeholder="Descripción" />
+          <input type="date" name="fechaInicio" required />
+          <input type="date" name="fechaFin" required />
+          <button type="submit">Agregar acción</button>
+        </form>
+        <ul class="action-list"></ul>
+      </details>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
